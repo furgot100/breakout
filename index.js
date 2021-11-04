@@ -13,7 +13,7 @@ const brickOffsetLeft = 30;
 const ballRadius = 10;
 const objcolor = '#0095DD';
 const paddleXStart = (canvas.width - paddleWidth) / 2;
-const font = '16px Arial'
+const font = '16px Arial';
 
 class Sprite {
   constructor(x, y, width, height, color) {
@@ -54,9 +54,6 @@ class Ball extends Sprite {
     ctx.closePath();
   }
 }
-
-let score = 0;
-let lives = 3;
 
 const ball = new Ball();
 
@@ -117,24 +114,7 @@ function drawPaddle() {
   ctx.closePath();
 }
 
-function collisionDetection() {
-  for (let c = 0; c < brickColumnCount; c += 1) {
-    for (let r = 0; r < brickRowCount; r += 1) {
-      const brick = bricks[c][r];
-      if (brick.status === 1) {
-        // eslint-disable-next-line max-len
-        if (ball.x > brick.x && ball.x < brick.x + brickWidth && ball.y > brick.y && ball.y < brick.y + brickHeight) {
-          ball.dy = -ball.dy;
-          brick.status = 0;
-          score += 1;
-          if (score === brickRowCount * brickColumnCount) {
-            document.location.reload();
-          }
-        }
-      }
-    }
-  }
-}
+
 
 function mouseMoveHandler(e) {
   const relativeX = e.clientX - canvas.offsetLeft;
@@ -178,12 +158,24 @@ class Score {
     this.font = font;
   }
 
+  update() {
+    this.score += 1;
+  }
+
+  reset() {
+    if (this.score === this.x * this.y) {
+      document.location.reload();
+    }
+  }
+
   render(ctx) {
     ctx.font = `${this.font}`;
     ctx.fillStyle = this.color;
     ctx.fillText(`Score: ${this.score}`, 8, 20);
   }
 }
+
+let score = new Score(brickRowCount, brickColumnCount, objcolor, 0, font);
 
 class Lives {
   constructor(x, y, color, lives, font) {
@@ -231,6 +223,23 @@ function arrowKeyChecker() {
   }
 }
 
+function collisionDetection() {
+  for (let c = 0; c < brickColumnCount; c += 1) {
+    for (let r = 0; r < brickRowCount; r += 1) {
+      const brick = bricks[c][r];
+      if (brick.status === 1) {
+        // eslint-disable-next-line max-len
+        if (ball.x > brick.x && ball.x < brick.x + brickWidth && ball.y > brick.y && ball.y < brick.y + brickHeight) {
+          ball.dy = -ball.dy;
+          brick.status = 0;
+          score.update();
+          score.reset();
+        }
+      }
+    }
+  }
+}
+
 function gameLogic() {
   if (ball.x + ball.dx > canvas.width - ballRadius || ball.x + ball.dx < ballRadius) {
     ball.dx = -ball.dx;
@@ -252,7 +261,7 @@ function draw() {
   drawBricks();
   ball.render(ctx);
   drawPaddle();
-  drawScore();
+  score.render(ctx);
   live.render(ctx);
   collisionDetection();
   ball.move();
