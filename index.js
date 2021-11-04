@@ -97,10 +97,22 @@ function drawBricks() {
   }
 }
 
-class Paddle extends Sprite {
+class Paddle {
   // eslint-disable-next-line no-useless-constructor
   constructor(x, y, width, height, color) {
-    super(x, y, width, height, color);
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.color = color;
+  }
+
+  render(ctx) {
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.width, this.height);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.closePath();
   }
 }
 
@@ -113,8 +125,6 @@ function drawPaddle() {
   ctx.fill();
   ctx.closePath();
 }
-
-
 
 function mouseMoveHandler(e) {
   const relativeX = e.clientX - canvas.offsetLeft;
@@ -142,12 +152,6 @@ function keyUpHandler(e) {
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
 document.addEventListener('mousemove', mouseMoveHandler, false);
-
-function drawScore() {
-  ctx.font = font;
-  ctx.fillStyle = objcolor;
-  ctx.fillText(`Score: ${score}`, 8, 20);
-}
 
 class Score {
   constructor(x, y, color, score, font) {
@@ -260,7 +264,7 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBricks();
   ball.render(ctx);
-  drawPaddle();
+  paddle.render(ctx);
   score.render(ctx);
   live.render(ctx);
   collisionDetection();
